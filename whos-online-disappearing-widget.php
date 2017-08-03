@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: BP Who's Online Disappearing Widget
+Plugin Name: BuddyPress Who's Online Disappearing Widget
 Description: This is a custom version of the BuddyPress "Who's Online" widget that hides the widget from logged out users.
 Text Domain: buddypress
 Domain Path: /languages
@@ -50,17 +50,24 @@ class BP_Whos_Online_Disappearing_Widget_Framework {
      * @access private
      * @return \BP_Whos_Online_Disappearing_Widget_Framework
      */
-	private function __construct() { /* Do nothing here */ }
+	private function __construct() { 
+			$this->basename = plugin_basename( __FILE__ );
+			register_activation_hook( __FILE__, array( $this , 'activate' ) );
+			register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+	}
 	
-		public static function meets_requirements() {
+	public static function meets_requirements() {
 		
-		if ( class_exists('bp')){
+		if ( class_exists('BuddyPress')){
 			return true;
 		}
 		else{
 			return false;
+		}
 	}
-	}
+	
+		 
+
 	
 
 	/**
@@ -71,8 +78,14 @@ class BP_Whos_Online_Disappearing_Widget_Framework {
 	 */
 	private function actions() {
 
-
-		add_action( 'bp_include', array( $this, 'includes' ) );
+	
+	    foreach( glob(  plugin_dir_path(__FILE__) . 'includes/*.php' ) as $filename ) {
+            include $filename;
+        }
+        
+        add_action( 'widgets_init', function() { return register_widget( 'BP_Core_Whos_Online_Disappearing_Widget' );} );	
+        
+		
 
         // these are for template file overrides.
 		add_action( 'bp_register_theme_packages', array( $this, 'bp_custom_templatepack_work' ) );
@@ -80,9 +93,54 @@ class BP_Whos_Online_Disappearing_Widget_Framework {
 		add_action( 'wp', array( $this, 'bp_templatepack_kill_legacy_js_and_css' ), 999 );
 		
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'widgets_init', function() { return register_widget( 'BP_Core_Whos_Online_Disappearing_Widget' );     } );
+		
+			// If BuddyPress is unavailable, deactivate our plugin
+		add_action( 'admin_notices', array( $this, 'maybe_disable_plugin' ) );
+		
+
+		
+		
+	
+		
+		
+		
+	}
+	
+	public function buddypress_register_whos_online_disappearing() {
+
+        // Registering widget
+        if ( class_exists('BuddyPress') && class_exists('BP_Core_Whos_Online_Disappearing_Widget'))
+            register_widget( 'BP_Core_Whos_Online_Disappearing_Widget' );
+        }
+    public function activate(){
+    	
+    }
+    public function deactivate(){
+    	
+    }
+	
+	public function maybe_disable_plugin() {
+
+		if ( ! $this->meets_requirements() ) {
+			// Display our error
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			echo '<div id="message" class="error">';
+			
+            if ( !class_exists( 'BuddyPress' ))
+            {
+            // Deactivate our plugin
+			
+			deactivate_plugins( $this->basename );
+			echo '<p>' . sprintf(__('So you want to break WordPress, huh? This widget requires BuddyPress and has been deactivated. Please install and activate BadgeOS and then reactivate this plugin.', 'badgeos_login_or_achievements_addon'), admin_url('plugins.php')) . '</p>';
+            }
+            echo '</div>';
+
+			
+		}
+
 	}
 
+	
 
 	/**
 	 * include function.
@@ -92,9 +150,7 @@ class BP_Whos_Online_Disappearing_Widget_Framework {
 	 */
 	public function includes() {
         // to include a file place it in the inc directory
-        foreach( glob(  plugin_dir_path(__FILE__) . 'includes/*.php' ) as $filename ) {
-            include $filename;
-        }
+    
 	}
 	
 	
