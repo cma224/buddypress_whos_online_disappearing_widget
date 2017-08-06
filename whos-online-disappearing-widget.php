@@ -4,7 +4,7 @@ Plugin Name: Who's Online Disappearing Widget for BuddyPress
 Description: This is a custom version of the BuddyPress "Who's Online" widget that hides the widget from logged out users.
 Text Domain: buddypress
 Domain Path: /languages
-Version: 1.0.0
+Version: 1.0.1
 Author: Cristian Abello
 Author URI: mailto:cristian.abello@valpo.edu
 License: GNU AGPL
