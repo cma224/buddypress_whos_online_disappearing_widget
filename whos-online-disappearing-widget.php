@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: BuddyPress Who's Online Disappearing Widget
+Plugin Name: Who's Online Disappearing Widget for BuddyPress
 Description: This is a custom version of the BuddyPress "Who's Online" widget that hides the widget from logged out users.
 Text Domain: buddypress
 Domain Path: /languages
@@ -128,12 +128,16 @@ class BP_Whos_Online_Disappearing_Widget_Framework {
 			
             if ( !class_exists( 'BuddyPress' ))
             {
-            // Deactivate our plugin
-			
-			deactivate_plugins( $this->basename );
 			echo '<p>' . sprintf(__('So you want to break WordPress, huh? This widget requires BuddyPress and has been deactivated. Please install and activate BadgeOS and then reactivate this plugin.', 'badgeos_login_or_achievements_addon'), admin_url('plugins.php')) . '</p>';
             }
             echo '</div>';
+            
+             // Deactivate our plugin
+			deactivate_plugins( $this->basename );
+            
+            // Stop Wordpress from displaying "Plugin Activated" message when plugin gets deactivated.
+			if ( isset( $_GET['activate'] ) ) 
+            unset( $_GET['activate'] );
 
 			
 		}
